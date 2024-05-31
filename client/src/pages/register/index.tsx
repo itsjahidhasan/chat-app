@@ -5,11 +5,30 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { CustomTextField } from "../../components/form";
 import { PostRequest } from "../../utils/service";
 import { ApiRoutes } from "../../common/api-routes";
+import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../../context/auth-context";
 
 interface FormValues {
   name: string;
   email: string;
   password: string;
+}
+interface Request {
+  name: string;
+  email: string;
+  password: string;
+}
+
+interface UserData {
+  _id: string;
+  name: string;
+  email: string;
+  token: string;
+}
+interface Response {
+  status: boolean;
+  message: string;
+  data: UserData;
 }
 
 const validationSchema = yup.object({
@@ -19,6 +38,8 @@ const validationSchema = yup.object({
 });
 
 const Register = () => {
+  const navigate = useNavigate();
+  const { handleSetUserData } = useAuthContext();
   const {
     register,
     handleSubmit,
@@ -27,15 +48,12 @@ const Register = () => {
     resolver: yupResolver(validationSchema),
   });
   const onSubmit = (data: FormValues) => {
-    const response = PostRequest<any, any>(ApiRoutes.REGISTER, data);
-
-    response
-      .then((res) => {
-        console.log({ response: res });
-      })
-      .catch((err) => {
-        console.log({ error: err });
-      });
+    PostRequest<Request, Response>(ApiRoutes.REGISTER, data).then((res) => {
+      if (res?.status) {
+        navigate("/");
+        handleSetUserData(res?.data);
+      }
+    });
   };
 
   return (
