@@ -9,18 +9,23 @@ const createToken = (_id) => {
   return jwt.sign({ _id }, jwtKey, { expiresIn: "3d" });
 };
 
+const response = (status, message, data) => {
+  return { status: status, message: message, data: data || {} };
+};
+
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
     let user = await userModel.findOne({ email });
-    if (user) return res.status(400).json("User is already exist");
+    if (user)
+      return res.status(400).json(response(false, "User is already exist"));
     if (!name || !email || !password)
-      return res.status(400).json("All fields are required");
+      return res.status(400).json(response(false, "All fields are required"));
     if (!validator.isEmail(email))
-      return res.status(400).json("Email is not valid");
+      return res.status(400).json(response(false, "Email is not valid"));
     if (!validator.isStrongPassword(password))
-      return res.status(400).json("Password should be strong");
+      return res.status(400).json(response(false, "Password should be strong"));
 
     user = new userModel({ name, email, password });
 
@@ -30,10 +35,17 @@ const registerUser = async (req, res) => {
 
     const token = createToken(user._id);
 
-    res.status(200).json({ _id: user._id, name, email, token: token });
+    res.status(200).json(
+      response(true, "Data successfully saved", {
+        _id: user._id,
+        name,
+        email,
+        token: token,
+      })
+    );
   } catch (err) {
     console.log({ err });
-    res.status(500).json({ err });
+    res.status(500).json(response(false, err.message));
   }
 };
 

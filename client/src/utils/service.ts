@@ -1,26 +1,24 @@
-export const baseUrl: string = "http://localhost:5000/api";
+var myHeaders = new Headers();
+myHeaders.append("Content-Type", "application/json");
 
-export const postRequest = async <T, R>(url: string, body: T): Promise<R> => {
+interface ResponseType {
+  status: boolean;
+  message: string;
+}
+
+export const PostRequest = async <T, R>(
+  url: string,
+  body: T
+): Promise<ResponseType> => {
   const response = await fetch(url, {
     method: "POST",
-    headers: {
-      contentType: "application/json",
-    },
+    headers: myHeaders,
+    mode: "cors",
+    cache: "default",
     body: JSON.stringify(body),
   });
 
-  const data = await response.json();
+  const res = await response.json();
 
-  if (!response.ok) {
-    let message;
-
-    if (data?.message) {
-      message = data.message;
-    } else {
-      message = data;
-    }
-
-    return message;
-  }
-  return data;
+  return res;
 };

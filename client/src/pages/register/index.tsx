@@ -2,6 +2,15 @@ import { Button, Col, Form, Row, Stack } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { CustomTextField } from "../../components/form";
+import { PostRequest } from "../../utils/service";
+import { ApiRoutes } from "../../common/api-routes";
+
+interface FormValues {
+  name: string;
+  email: string;
+  password: string;
+}
 
 const validationSchema = yup.object({
   name: yup.string().required().label("Name"),
@@ -17,7 +26,17 @@ const Register = () => {
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
-  const onSubmit = (data: any) => console.log(data);
+  const onSubmit = (data: FormValues) => {
+    const response = PostRequest<any, any>(ApiRoutes.REGISTER, data);
+
+    response
+      .then((res) => {
+        console.log({ response: res });
+      })
+      .catch((err) => {
+        console.log({ error: err });
+      });
+  };
 
   return (
     <>
@@ -29,41 +48,28 @@ const Register = () => {
             paddingTop: "10%",
           }}
         >
-          <Col xs={6}>
+          <Col xs={12} sm={10} md={6}>
             <Stack gap={3}>
               <h2>Register</h2>
-              <div>
-                <Form.Control
-                  type="text"
-                  placeholder="Name"
-                  {...register("name")}
-                />
-                {errors?.name && (
-                  <span className="text-danger">{errors?.name?.message}</span>
-                )}
-              </div>
-              <div>
-                <Form.Control
-                  type="email"
-                  placeholder="email"
-                  {...register("email")}
-                ></Form.Control>
-                {errors?.email && (
-                  <span className="text-danger">{errors?.email?.message}</span>
-                )}
-              </div>
-              <div>
-                <Form.Control
-                  type="password"
-                  placeholder="password"
-                  {...register("password")}
-                ></Form.Control>
-                {errors?.password && (
-                  <span className="text-danger">
-                    {errors?.password?.message}
-                  </span>
-                )}
-              </div>
+
+              <CustomTextField
+                id="name"
+                placeholder="Name"
+                errors={errors}
+                register={register}
+              />
+              <CustomTextField
+                id="email"
+                placeholder="Email"
+                errors={errors}
+                register={register}
+              />
+              <CustomTextField
+                id="password"
+                placeholder="Password"
+                errors={errors}
+                register={register}
+              />
 
               <Button variant="primary" type="submit">
                 Register
