@@ -7,6 +7,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { ApiRoutes } from "../../common/api-routes";
 import { PostRequest } from "../../utils/service";
 import { CustomTextField } from "../../components/form";
+import { useEffect } from "react";
 interface FormValues {
   email: string;
   password: string;
@@ -34,7 +35,7 @@ const validationSchema = yup.object({
 });
 const Login = () => {
   const navigate = useNavigate();
-  const { handleSetUserData } = useAuthContext();
+  const { user, handleSetUserData } = useAuthContext();
   const {
     register,
     handleSubmit,
@@ -44,13 +45,17 @@ const Login = () => {
   });
 
   const onSubmit = (data: FormValues) => {
-    PostRequest<Request, Response>(ApiRoutes.LOGIN, data).then((res) => {
+    PostRequest<Request, Response>(ApiRoutes.LOGIN, data).then(async (res) => {
       if (res?.status) {
+        await handleSetUserData(res?.data);
         navigate("/");
-        handleSetUserData(res?.data);
       }
     });
   };
+
+  useEffect(() => {
+    Object.keys(user).length && navigate("/");
+  }, [user?.name]);
 
   return (
     <>

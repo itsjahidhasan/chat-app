@@ -7,6 +7,7 @@ import { PostRequest } from "../../utils/service";
 import { ApiRoutes } from "../../common/api-routes";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/auth-context";
+import { useEffect } from "react";
 
 interface FormValues {
   name: string;
@@ -39,7 +40,7 @@ const validationSchema = yup.object({
 
 const Register = () => {
   const navigate = useNavigate();
-  const { handleSetUserData } = useAuthContext();
+  const { user, handleSetUserData } = useAuthContext();
   const {
     register,
     handleSubmit,
@@ -48,13 +49,20 @@ const Register = () => {
     resolver: yupResolver(validationSchema),
   });
   const onSubmit = (data: FormValues) => {
-    PostRequest<Request, Response>(ApiRoutes.REGISTER, data).then((res) => {
-      if (res?.status) {
-        navigate("/");
-        handleSetUserData(res?.data);
+    PostRequest<Request, Response>(ApiRoutes.REGISTER, data).then(
+      async (res) => {
+        if (res?.status) {
+          await handleSetUserData(res?.data);
+
+          navigate("/");
+        }
       }
-    });
+    );
   };
+
+  useEffect(() => {
+    Object.keys(user).length && navigate("/");
+  }, [user]);
 
   return (
     <>
