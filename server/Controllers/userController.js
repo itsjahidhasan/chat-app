@@ -54,21 +54,24 @@ const loginUser = async (req, res) => {
 
   try {
     const user = await userModel.findOne({ email });
-    if (!user) res.status(400).json("Invalid email");
+    if (!user) res.status(400).json(response(false, "Invalid email"));
     const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) res.status(400).json("Invalid password");
+    if (!isValidPassword)
+      res.status(400).json(response(false, "Invalid password"));
 
     const token = createToken(user._id);
 
-    res.status(200).json({
-      _id: user._id,
-      name: user.name,
-      email,
-      token: token,
-    });
+    res.status(200).json(
+      response(true, "Login successful", {
+        _id: user._id,
+        name: user.name,
+        email,
+        token: token,
+      })
+    );
   } catch (err) {
     console.log({ err });
-    res.status(500).json({ err });
+    res.status(500).json(response(false, err.message));
   }
 };
 
@@ -77,20 +80,20 @@ const findUser = async (req, res) => {
   try {
     const user = await userModel.findById(userId);
 
-    res.status(200).json(user);
+    res.status(200).json(response(true, "", user));
   } catch (err) {
     console.log({ err });
-    res.status(500).json({ err });
+    res.status(500).json(response(false, err.message));
   }
 };
 const getUsers = async (req, res) => {
   try {
     const users = await userModel.find();
 
-    res.status(200).json(users);
+    res.status(200).json(response(true, "", users));
   } catch (err) {
     console.log({ err });
-    res.status(500).json({ err });
+    res.status(500).json(response(false, err.message));
   }
 };
 

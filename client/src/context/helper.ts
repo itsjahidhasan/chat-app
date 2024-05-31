@@ -4,13 +4,21 @@ export const SetUserToLocalStorage = (data: any) => {
   localStorage.setItem(LocalStorageKey.USER, JSON.stringify(data));
 };
 
-export const GetUserFromLocalStorage = () =>
-  JSON.parse(localStorage.getItem(LocalStorageKey.USER) || "");
+export const GetUserFromLocalStorage = () => {
+  return localStorage.getItem(LocalStorageKey.USER)
+    ? JSON.parse(localStorage.getItem(LocalStorageKey.USER) || "")
+    : "";
+};
 
 export const SetTokenToLocalStorage = (token: string) => {
   localStorage.setItem(LocalStorageKey.TOKEN, token);
 };
 
 export const GetTokenFromLocalStorage = () => {
-  return JSON.parse(localStorage.getItem(LocalStorageKey.TOKEN) || "");
+  return localStorage.getItem(LocalStorageKey.TOKEN);
+};
+
+export const DeleteTokenAndLocalStorage = () => {
+  localStorage.removeItem(LocalStorageKey.USER);
+  localStorage.removeItem(LocalStorageKey.TOKEN);
 };

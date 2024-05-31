@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import {
+  DeleteTokenAndLocalStorage,
   GetTokenFromLocalStorage,
   GetUserFromLocalStorage,
   SetTokenToLocalStorage,
@@ -26,37 +27,54 @@ interface User {
 interface useAuthContextReturnype {
   user: { name?: string; email?: string; _id?: string };
   token: string;
-  handleSetUserData: (data: any) => void;
+  handleSetUserData: (data: User) => void;
+  removeUser: () => void;
 }
 
 export const AuthContext = createContext<useAuthContextReturnype>({
-  user: { name: "" },
+  user: {},
   token: "",
   handleSetUserData: ({}) => {},
+  removeUser: () => {},
 });
 
 export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   const [user, setUser] = useState({});
   const [token, setToken] = useState("");
+
+  const authUser = GetUserFromLocalStorage();
+  const authToken = GetTokenFromLocalStorage();
+
   const handleSetUserData = (data: User) => {
     const userData = {
       _id: data?._id,
       email: data?.email,
       name: data?.name,
     };
+    setUser(userData);
+    setToken(token);
     SetUserToLocalStorage(userData);
     SetTokenToLocalStorage(data?.token);
   };
 
-  useEffect(() => {
-    setUser(GetUserFromLocalStorage());
-  }, [GetUserFromLocalStorage()]);
+  const removeUser = () => {
+    setUser({});
+    setToken("");
+    DeleteTokenAndLocalStorage();
+  };
 
   useEffect(() => {
-    setToken(GetTokenFromLocalStorage());
-  }, [GetTokenFromLocalStorage()]);
+    setUser(authUser);
+  }, [authUser?._id, authUser?.email, authUser?.name]);
+
+  useEffect(() => {
+    const token = GetTokenFromLocalStorage();
+    setToken(token || "");
+  }, [authToken]);
   return (
-    <AuthContext.Provider value={{ user, token, handleSetUserData }}>
+    <AuthContext.Provider
+      value={{ user, token, handleSetUserData, removeUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
