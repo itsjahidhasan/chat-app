@@ -1,15 +1,7 @@
 var myHeaders = new Headers();
 myHeaders.append("Content-Type", "application/json");
 
-interface ResponseType {
-  status: boolean;
-  message: string;
-}
-
-export const PostRequest = async <T, R>(
-  url: string,
-  body: T
-): Promise<ResponseType> => {
+export const PostRequest = async <T, R>(url: string, body: T): Promise<R> => {
   const response = await fetch(url, {
     method: "POST",
     headers: myHeaders,
